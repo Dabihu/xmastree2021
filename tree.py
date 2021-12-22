@@ -186,6 +186,53 @@ class FuncMoveCombine(LightFunc):
         self.f2.next_frame()
 
 
+class FuncRGBSinWave(LightFunc):
+    def __init__(self):
+        super().__init__()
+        self.wave = []
+        self.speed = []
+        self.pos = []
+        for i in range(3):
+            self.wave.append(2 * math.pi * (random.randrange(3) + 1) / LED_COUNT)
+            self.speed.append(random.randrange(-100, 100) / 500)
+            self.pos.append(random.randrange(-314, 314) / 100)
+
+    def get(self, i) -> Color:
+        c = []
+        for ci in range(3):
+            c.append(3 ** (math.sin(i * self.wave[ci] + self.pos[ci]) * 5 - 5) * 255)
+        r, g, b = c
+        return Color(r, g, b)
+
+    def next_frame(self):
+        for i in range(3):
+            self.pos[i] += self.speed[i]
+
+
+class FuncRGBSawWave(LightFunc):
+    def __init__(self):
+        super().__init__()
+        self.wave = []
+        self.speed = []
+        self.pos = []
+        for i in range(3):
+            self.wave.append((random.randrange(3) + 1) / LED_COUNT)
+            self.speed.append(random.randrange(-100, 100) / 4000)
+            self.pos.append(random.randrange(100) / 100)
+            
+    def get(self, i) -> Color:
+        c = []
+        for ci in range(3):
+            y = i * self.wave[ci] + self.pos[ci]
+            c.append(3 ** ((y - math.floor(y)) * 5 - 5) * 255)
+        r, g, b = c
+        return Color(r, g, b)
+
+    def next_frame(self):
+        for i in range(3):
+            self.pos[i] += self.speed[i]
+
+
 class FuncFade1(LightFuncN):
     def __init__(self):
         super().__init__()
@@ -292,8 +339,8 @@ class Tree:
         self.func1 = None  # typing.Optional[LightFunc, LightFuncN]
         self.func2 = None  # typing.Optional[LightFunc, LightFuncN]
         self.mix = 0
-        self.funclist = [FuncRainbow, FuncMoveingDots1, FuncMoveingDots2, FuncMoveCombine, FuncFade1, FuncFade2,
-                         FuncSparkling1]
+        self.funclist = [FuncRainbow, FuncMoveingDots1, FuncMoveingDots2, FuncMoveCombine, FuncRGBSinWave,
+                         FuncRGBSawWave, FuncFade1, FuncFade2, FuncSparkling1]
         self.fixfunc = None
         if self.args.action is not None and self.args.action < len(self.funclist):
             self.fixfunc = self.funclist[self.args.action]
